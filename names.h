@@ -1,0 +1,2 @@
+#define PROV_NAMES_VC "VC"
+#define PROV_NAMES_DID "DID"
