@@ -1,6 +1,33 @@
+#include <openssl/core.h>
+#include <openssl/core_dispatch.h>
+#include <openssl/core_names.h>
+#include <openssl/params.h>
+#include <openssl/bio.h>
+#include "names.h"
+#include "implementations.h"
+#include "common/include/prov/bio.h"
+//#include "common/include/prov/provider_ctx.h"
+//#include "/home/pirug/Desktop/identity-cbindings/header-binding/identity.h"
+
+/* Functions provided by the core */
+static OSSL_FUNC_core_gettable_params_fn *c_gettable_params = NULL;
+static OSSL_FUNC_core_get_params_fn *c_get_params = NULL;
+
 static const OSSL_ALGORITHM ssi_keymgmt[] = {
-    { PROV_NAMES_VC , "provider=ssi", ossl_vc_functions },
-    { PROV_NAMES_DID, "provider=ssi", ossl_did_functions }
+    { PROV_NAMES_VC , "provider=ssi", ossl_vc_keymgmt_functions },
+    { PROV_NAMES_DID, "provider=ssi", ossl_did_keymgmt_functions },
+    { NULL, NULL, NULL }
+};
+
+static const OSSL_ALGORITHM ssi_encoder[] = {
+    { PROV_NAMES_VC , "provider=ssi,output=pem,structure=PrivateKeyInfo", ossl_vc_to_PrivateKeyInfo_pem_encoder_functions },
+    { PROV_NAMES_DID, "provider=ssi,output=pem,structure=PrivateKeyInfo", ossl_did_to_PrivateKeyInfo_pem_encoder_functions },
+    { NULL, NULL, NULL }
+};
+
+static const OSSL_ALGORITHM ssi_decoder[] = {
+    { PROV_NAMES_DID, "provider=ssi,input=der,structure=PrivateKeyInfo", ossl_PrivateKeyInfo_der_to_did_decoder_functions },
+     { NULL, NULL, NULL }
 };
 
 static const OSSL_PARAM ssi_param_types[] = {
@@ -42,7 +69,11 @@ static const OSSL_ALGORITHM *ssi_query(void *provctx, int operation_id,
     *no_cache = 0;
     switch (operation_id) {
     case OSSL_OP_KEYMGMT:
-        return ssi_kmgmt;
+        return ssi_keymgmt;
+    case OSSL_OP_ENCODER:
+        return ssi_encoder;
+    case OSSL_OP_DECODER:
+        return ssi_decoder;
     }
     return NULL;
 }
@@ -57,16 +88,63 @@ static const OSSL_DISPATCH ssi_dispatch_table[] = {
     { OSSL_FUNC_PROVIDER_GETTABLE_PARAMS, (void (*)(void))ssi_gettable_params },
     { OSSL_FUNC_PROVIDER_GET_PARAMS, (void (*)(void))ssi_get_params },
     { OSSL_FUNC_PROVIDER_QUERY_OPERATION, (void (*)(void))ssi_query },
-    { OSSL_FUNC_PROVIDER_GET_CAPABILITIES,
-      (void (*)(void))ossl_prov_get_capabilities },
     OSSL_DISPATCH_END
 };
 
-OSSL_provider_init_fn ossl_ssi_provider_init;
+// OSSL_provider_init_fn ossl_ssi_provider_init;
 
-int ossl_ssi_provider_init(const OSSL_CORE_HANDLE *handle,
+extern int OSSL_provider_init(const OSSL_CORE_HANDLE *handle,
                             const OSSL_DISPATCH *in, const OSSL_DISPATCH **out,
                             void **provctx) {
+    
+    OSSL_FUNC_core_get_libctx_fn *c_get_libctx = NULL;
+    BIO_METHOD *corebiometh;
+    Wallet *w;
+
+    if (!ossl_prov_bio_from_dispatch(in))
+        return 0;
+    for (; in->function_id != 0; in++) {
+        switch (in->function_id) {
+        case OSSL_FUNC_CORE_GETTABLE_PARAMS:
+            c_gettable_params = OSSL_FUNC_core_gettable_params(in);
+            break;
+        case OSSL_FUNC_CORE_GET_PARAMS:
+            c_get_params = OSSL_FUNC_core_get_params(in);
+            break;
+        case OSSL_FUNC_CORE_GET_LIBCTX:
+            c_get_libctx = OSSL_FUNC_core_get_libctx(in);
+            break;
+        default:
+            /* Just ignore anything we don't understand */
+            break;
+        }
+    }
+
+    if (c_get_libctx == NULL)
+        return 0;
+
+    /*
+     * We want to make sure that all calls from this provider that requires
+     * a library context use the same context as the one used to call our
+     * functions.  We do that by passing it along in the provider context.
+     *
+     * This only works for built-in providers.  Most providers should
+     * create their own library context.
+     */
+    if ((*provctx = ossl_prov_ctx_new()) == NULL
+            || (corebiometh = ossl_bio_prov_init_bio_method()) == NULL
+            || (w = prov_init_wallet()) == NULL ) {
+        ossl_prov_ctx_free(*provctx);
+        *provctx = NULL;
+        return 0;
+    }
+    ossl_prov_ctx_set0_libctx(*provctx,
+                                       (OSSL_LIB_CTX *)c_get_libctx(handle));
+    ossl_prov_ctx_set0_handle(*provctx, handle);
+    ossl_prov_ctx_set0_core_bio_method(*provctx, corebiometh);
+    prov_ctx_set_wallet(*provctx, w);
+
     *out = ssi_dispatch_table;
+
     return 1;
 }
