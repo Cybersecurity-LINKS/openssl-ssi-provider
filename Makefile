@@ -13,7 +13,10 @@ CFLAGS =\
 LDFLAGS = -shared -lidentity_openssl 
 
 TARGET = libssiprovider.so
-SOURCES = keymgmt/vc_kmgmt.c keymgmt/did_kmgmt.c encode_decode/decode_der2did.c encode_decode/encode_vc2pem.c encode_decode/encode_did2pem.c ssiprov.c names.h common/bio_prov.c common/provider_ctx.c common/include/prov/bio.h common/include/prov/provider_ctx.h 
+SOURCES = keymgmt/ssi.h keymgmt/vc_kmgmt.c keymgmt/did_kmgmt.c\
+	encode_decode/endecoder_local.h encode_decode/endecoder_common.c encode_decode/decode_der2vc.c encode_decode/decode_der2did.c encode_decode/encode_vc2pem.c encode_decode/encode_did2pem.c\
+	common/bio_prov.c common/provider_ctx.c common/include/prov/bio.h common/include/prov/provider_ctx.h\
+	ssiprov.c names.h
 OBJECTS = $(SOURCES:.c=.o)
 
 all: $(TARGET)

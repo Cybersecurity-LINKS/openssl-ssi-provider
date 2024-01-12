@@ -20,14 +20,17 @@ static const OSSL_ALGORITHM ssi_keymgmt[] = {
 };
 
 static const OSSL_ALGORITHM ssi_encoder[] = {
+    { PROV_NAMES_VC , "provider=ssi,output=pem,structure=SubjectPublicKeyInfo", ossl_vc_to_SubjectPublicKeyInfo_pem_encoder_functions },
     { PROV_NAMES_VC , "provider=ssi,output=pem,structure=PrivateKeyInfo", ossl_vc_to_PrivateKeyInfo_pem_encoder_functions },
-    { PROV_NAMES_DID, "provider=ssi,output=pem,structure=PrivateKeyInfo", ossl_did_to_PrivateKeyInfo_pem_encoder_functions },
+    /* { PROV_NAMES_DID, "provider=ssi,output=pem,structure=PrivateKeyInfo", ossl_did_to_PrivateKeyInfo_pem_encoder_functions }, */
     { NULL, NULL, NULL }
 };
 
 static const OSSL_ALGORITHM ssi_decoder[] = {
-    { PROV_NAMES_DID, "provider=ssi,input=der,structure=PrivateKeyInfo", ossl_PrivateKeyInfo_der_to_did_decoder_functions },
-     { NULL, NULL, NULL }
+    { PROV_NAMES_VC, "provider=ssi,input=der,structure=SubjectPublicKeyInfo", ossl_SubjectPublicKeyInfo_der_to_vc_decoder_functions },
+    { PROV_NAMES_VC, "provider=ssi,input=der,structure=PrivateKeyInfo", ossl_PrivateKeyInfo_der_to_vc_decoder_functions },
+    /* { PROV_NAMES_DID, "provider=ssi,input=der,structure=PrivateKeyInfo", ossl_PrivateKeyInfo_der_to_did_decoder_functions }, */
+    { NULL, NULL, NULL }
 };
 
 static const OSSL_PARAM ssi_param_types[] = {
@@ -133,7 +136,7 @@ extern int OSSL_provider_init(const OSSL_CORE_HANDLE *handle,
      */
     if ((*provctx = ossl_prov_ctx_new()) == NULL
             || (corebiometh = ossl_bio_prov_init_bio_method()) == NULL
-            || (w = prov_init_wallet()) == NULL ) {
+            /* || (w = prov_init_wallet()) == NULL */ ) {
         ossl_prov_ctx_free(*provctx);
         *provctx = NULL;
         return 0;
@@ -142,7 +145,7 @@ extern int OSSL_provider_init(const OSSL_CORE_HANDLE *handle,
                                        (OSSL_LIB_CTX *)c_get_libctx(handle));
     ossl_prov_ctx_set0_handle(*provctx, handle);
     ossl_prov_ctx_set0_core_bio_method(*provctx, corebiometh);
-    prov_ctx_set_wallet(*provctx, w);
+    /* prov_ctx_set_wallet(*provctx, w); */
 
     *out = ssi_dispatch_table;
 

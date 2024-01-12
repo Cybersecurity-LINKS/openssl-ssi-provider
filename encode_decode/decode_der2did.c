@@ -4,9 +4,10 @@
 #include <openssl/params.h>
 #include <openssl/core_names.h>
 #include "../common/include/prov/bio.h"
-//#include <string.h>
 #include <openssl/buffer.h>
 #include <openssl/err.h>
+#include <string.h>
+#include "../names.h"
 
 static OSSL_FUNC_decoder_newctx_fn der2did_newctx;
 static OSSL_FUNC_decoder_freectx_fn der2did_freectx;
@@ -22,13 +23,6 @@ static int read_did(PROV_CTX *provctx, OSSL_CORE_BIO *cin,  char **did_doc,
     int ok;
     char *data = malloc(2000);
     size_t length = 0;
-
-    /* BUF_MEM *mem = NULL;
-    mem = BUF_MEM_new();
-    if (mem == NULL) {
-        ERR_raise(ERR_LIB_ASN1, ERR_R_BUF_LIB);
-        return -1;
-    } */
     
     BIO *in = ossl_bio_new_from_core_bio(provctx, cin);
     if (in == NULL)
@@ -46,7 +40,7 @@ static int read_did(PROV_CTX *provctx, OSSL_CORE_BIO *cin,  char **did_doc,
 
 static void *der2did_newctx(void *provctx)
 {
-    printf("DID DECODER ctx new\n");
+    /* printf("DID DECODER ctx new\n"); */
     struct der2did_ctx_st *ctx = OPENSSL_zalloc(sizeof(*ctx));
 
     if (ctx != NULL) {
@@ -70,27 +64,18 @@ static int PrivateKeyInfo_der_to_did_decode(void *vctx, OSSL_CORE_BIO *cin, int 
     char *did_doc = NULL;
     long did_doc_read = 0;
     int ok = 0;
-
-    /* char s[] = "Ciao";
-
-    BIO *in = ossl_bio_new_from_core_bio(ctx->provctx, cin);
-
-    if(in == NULL)
-        return ok;
-
-    if(!BIO_read_ex(in, &did_doc, 2000, &did_doc_read))
-        return ok;
-    printf("Size of DID Document: %ld bytes \n", did_doc_read);
-
-    BIO_free(in); */
-
-    /* if(!ossl_prov_bio_read_ex(cin, &did_doc, 1218, &did_doc_read))
-        return ok;
-    printf("Size of DID Document: %ld bytes \n", did_doc_read); */
+    char oid[20];
 
     ok = read_did(ctx->provctx, cin, &did_doc, &did_doc_read);
     if(!ok)
         return ok;
+
+    if(sscanf(did_doc, "%s %s", oid, did_doc) == EOF)
+    	return 0;
+
+    ok = OPENSSL_strcasecmp(oid, DID_OID);
+    if(ok)
+        return 0;
 
     OSSL_PARAM params[4];
     int object_type = OSSL_OBJECT_PKEY;
@@ -101,7 +86,7 @@ static int PrivateKeyInfo_der_to_did_decode(void *vctx, OSSL_CORE_BIO *cin, int 
         OSSL_PARAM_construct_utf8_string(OSSL_OBJECT_PARAM_DATA_TYPE,
                                              "DID", 0);
     params[2] =
-        OSSL_PARAM_construct_octet_string(OSSL_OBJECT_PARAM_REFERENCE, did_doc, did_doc_read);
+        OSSL_PARAM_construct_octet_string(OSSL_OBJECT_PARAM_REFERENCE, did_doc, strlen(did_doc));
 
     params[3] = OSSL_PARAM_construct_end();
 

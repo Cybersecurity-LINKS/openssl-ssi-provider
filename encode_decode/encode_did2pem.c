@@ -40,7 +40,7 @@ static int did_to_PrivateKeyInfo_pem_encode(void *ctx, OSSL_CORE_BIO *cout, cons
 {   
     struct did2pem_ctx_st *didctx = ctx;
     const Did *did = key;
-    const char *did_document = did_get(did);
+    const char *did_document = get_did(did);
     printf("I am:\n%s\n", did_document);
 
     BIO *out = ossl_bio_new_from_core_bio(didctx->provctx, cout);

@@ -27,9 +27,17 @@ static void *did_newdata(void *provctx)
 static void *did_load(const void *reference, size_t reference_sz)
 {   
 	Did *did = NULL;
-    char s[] = "Hello";
-    printf("%s\n", (const char *)reference);
-    did = did_set((char*)reference, s);
+    char *fragment = OPENSSL_zalloc(reference_sz);
+    char *did_document = OPENSSL_zalloc(reference_sz);
+    printf("%s\n", (const char*)reference);
+
+    if(sscanf((const char*)reference, "%[^:]:%s", fragment, did_document) == EOF)
+    	return NULL;
+    did = set_did(did_document, fragment);
+
+    OPENSSL_free(fragment);
+    OPENSSL_free(did_document);
+
     return did;
 }
 
@@ -50,9 +58,8 @@ static void *did_gen_init(void *provctx, int selection,
 static void *did_gen(void *genctx, OSSL_CALLBACK *osslcb, void *cbarg)
 {
     struct did_gen_ctx *gctx = genctx;
-    /* char *s = malloc(15 + 1);
-    strcpy(s, "Hello did"); */
     Did *did = NULL;
+    
     did = did_create(gctx->w);
     return did;
 }
