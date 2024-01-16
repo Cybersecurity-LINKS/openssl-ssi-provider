@@ -65,6 +65,11 @@ static void *vc_load(const void *reference, size_t reference_sz)
     OPENSSL_free(did_document);
     OPENSSL_free(vc_jwt);
 
+    /* did_document = get_did(did);
+    printf("This is a get of DID: %s \n", did_document);
+    vc_jwt = get_vc(vc);
+    printf("This is a get of VC: %s \n", vc);
+ */
     return i;
 }
 

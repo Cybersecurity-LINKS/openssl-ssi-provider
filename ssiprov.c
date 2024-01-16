@@ -22,6 +22,7 @@ static const OSSL_ALGORITHM ssi_keymgmt[] = {
 static const OSSL_ALGORITHM ssi_encoder[] = {
     { PROV_NAMES_VC , "provider=ssi,output=pem,structure=SubjectPublicKeyInfo", ossl_vc_to_SubjectPublicKeyInfo_pem_encoder_functions },
     { PROV_NAMES_VC , "provider=ssi,output=pem,structure=PrivateKeyInfo", ossl_vc_to_PrivateKeyInfo_pem_encoder_functions },
+    { PROV_NAMES_VC , "provider=ssi,output=der,structure=SubjectPublicKeyInfo", ossl_vc_to_SubjectPublicKeyInfo_der_encoder_functions },
     /* { PROV_NAMES_DID, "provider=ssi,output=pem,structure=PrivateKeyInfo", ossl_did_to_PrivateKeyInfo_pem_encoder_functions }, */
     { NULL, NULL, NULL }
 };
