@@ -12,3 +12,6 @@ extern const OSSL_DISPATCH ossl_did_to_PrivateKeyInfo_pem_encoder_functions[];
 extern const OSSL_DISPATCH ossl_PrivateKeyInfo_der_to_did_decoder_functions[];
 extern const OSSL_DISPATCH ossl_PrivateKeyInfo_der_to_vc_decoder_functions[];
 extern const OSSL_DISPATCH ossl_SubjectPublicKeyInfo_der_to_vc_decoder_functions[];
+
+/* OP_SIGNA[TURE */
+extern const OSSL_DISPATCH ossl_vc_signature_functions[];

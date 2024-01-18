@@ -34,6 +34,11 @@ static const OSSL_ALGORITHM ssi_decoder[] = {
     { NULL, NULL, NULL }
 };
 
+static const OSSL_ALGORITHM ssi_signature[] = {
+    { PROV_NAMES_VC, "provider=ssi", ossl_vc_signature_functions},
+    { NULL, NULL, NULL}
+};
+
 static const OSSL_PARAM ssi_param_types[] = {
     OSSL_PARAM_DEFN(OSSL_PROV_PARAM_NAME, OSSL_PARAM_UTF8_PTR, NULL, 0),
     OSSL_PARAM_DEFN(OSSL_PROV_PARAM_VERSION, OSSL_PARAM_UTF8_PTR, NULL, 0),
@@ -78,6 +83,8 @@ static const OSSL_ALGORITHM *ssi_query(void *provctx, int operation_id,
         return ssi_encoder;
     case OSSL_OP_DECODER:
         return ssi_decoder;
+    case OSSL_OP_SIGNATURE:
+        return ssi_signature;
     }
     return NULL;
 }

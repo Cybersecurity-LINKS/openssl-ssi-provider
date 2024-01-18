@@ -12,6 +12,7 @@ static OSSL_FUNC_keymgmt_gen_fn vc_gen;
 static OSSL_FUNC_keymgmt_gen_cleanup_fn vc_gen_cleanup;
 static OSSL_FUNC_keymgmt_load_fn vc_load;
 static OSSL_FUNC_keymgmt_has_fn vc_has;
+static OSSL_FUNC_keymgmt_validate_fn vc_validate;
 static OSSL_FUNC_keymgmt_free_fn vc_freedata;
 
 struct vc_gen_ctx {
@@ -130,6 +131,17 @@ static int vc_has(const void *keydata, int selection)
     return 1;
 }
 
+static int vc_validate(const void *keydata, int selection, int checktype)
+{
+    /* struct identity *i = keydata;
+    Wallet *w = NULL;
+
+    const char* vc_jwt = get_vc(i->vc);
+    i->did = vc_verify(w, vc_jwt); */
+
+    return 1;
+}
+
 const OSSL_DISPATCH ossl_vc_keymgmt_functions[] = {
     { OSSL_FUNC_KEYMGMT_NEW, (void (*)(void))vc_newdata },
     { OSSL_FUNC_KEYMGMT_GEN_INIT, (void (*)(void))vc_gen_init },
@@ -137,6 +149,7 @@ const OSSL_DISPATCH ossl_vc_keymgmt_functions[] = {
     { OSSL_FUNC_KEYMGMT_GEN_CLEANUP, (void (*)(void))vc_gen_cleanup },
     { OSSL_FUNC_KEYMGMT_LOAD, (void (*)(void))vc_load },
     { OSSL_FUNC_KEYMGMT_HAS, (void (*)(void))vc_has },
+    { OSSL_FUNC_KEYMGMT_VALIDATE, (void (*)(void))vc_validate },
     { OSSL_FUNC_KEYMGMT_FREE, (void (*)(void))vc_freedata },
     OSSL_DISPATCH_END
 };
