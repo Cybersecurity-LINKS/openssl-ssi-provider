@@ -144,7 +144,7 @@ extern int OSSL_provider_init(const OSSL_CORE_HANDLE *handle,
      */
     if ((*provctx = ossl_prov_ctx_new()) == NULL
             || (corebiometh = ossl_bio_prov_init_bio_method()) == NULL
-            /* || (w = prov_init_wallet()) == NULL */ ) {
+            || (w = prov_init_wallet()) == NULL ) {
         ossl_prov_ctx_free(*provctx);
         *provctx = NULL;
         return 0;
@@ -153,7 +153,7 @@ extern int OSSL_provider_init(const OSSL_CORE_HANDLE *handle,
                                        (OSSL_LIB_CTX *)c_get_libctx(handle));
     ossl_prov_ctx_set0_handle(*provctx, handle);
     ossl_prov_ctx_set0_core_bio_method(*provctx, corebiometh);
-    /* prov_ctx_set_wallet(*provctx, w); */
+    prov_ctx_set_wallet(*provctx, w);
 
     *out = ssi_dispatch_table;
 

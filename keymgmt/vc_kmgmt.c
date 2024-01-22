@@ -2,7 +2,7 @@
 # include <openssl/core_dispatch.h>
 # include <openssl/crypto.h>
 # include <string.h>
-# include "ssi.h"
+# include "../common/ssi.h"
 # include "../common/include/prov/provider_ctx.h"
 # include "../names.h"
 
@@ -28,7 +28,7 @@ static void *vc_newdata(void *provctx)
 
 static void *vc_load(const void *reference, size_t reference_sz)
 {   
-    struct identity *i = NULL;
+    Identity *i = NULL;
 
     char oid[20];
     char *did_document = NULL;
@@ -91,7 +91,7 @@ static void *vc_gen_init(void *provctx, int selection,
 static void *vc_gen(void *genctx, OSSL_CALLBACK *osslcb, void *cbarg)
 {
     struct vc_gen_ctx *gctx = genctx;
-    struct identity *i = NULL;
+    Identity *i = NULL;
 
     i = OPENSSL_zalloc(sizeof(*i));
     if(i == NULL)

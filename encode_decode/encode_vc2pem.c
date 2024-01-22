@@ -5,7 +5,7 @@
 # include <openssl/pem.h>
 //#include "../common/include/prov/provider_ctx.h"
 # include "../common/include/prov/bio.h"
-# include "../keymgmt/ssi.h"
+# include "../common/ssi.h"
 
 static OSSL_FUNC_encoder_newctx_fn vc2pem_newctx;
 static OSSL_FUNC_encoder_freectx_fn vc2pem_freectx;

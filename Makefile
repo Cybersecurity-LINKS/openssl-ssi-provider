@@ -1,4 +1,4 @@
-OPENSLL_INSTALL_DIR=/home/pirug/openssl
+OPENSLL_INSTALL_DIR=/home/pirug/openssl-ietf-ssi
 IDENTITY_CBINDINGS=/home/pirug/Desktop/identity-cbindings
 OPENSSL_LIB=lib64
 
@@ -13,10 +13,10 @@ CFLAGS =\
 LDFLAGS = -shared -lidentity_openssl 
 
 TARGET = libssiprovider.so
-SOURCES = keymgmt/ssi.h keymgmt/vc_kmgmt.c keymgmt/did_kmgmt.c\
+SOURCES = keymgmt/vc_kmgmt.c keymgmt/did_kmgmt.c\
 	encode_decode/endecoder_local.h encode_decode/endecoder_common.c encode_decode/decode_der2vc.c encode_decode/decode_der2did.c encode_decode/encode_vc2pem.c encode_decode/encode_did2pem.c\
 	signature/vc_sig.c\
-	common/bio_prov.c common/provider_ctx.c common/include/prov/bio.h common/include/prov/provider_ctx.h\
+	common/ssi.h common/bio_prov.c common/provider_ctx.c common/include/prov/bio.h common/include/prov/provider_ctx.h\
 	ssiprov.c names.h
 OBJECTS = $(SOURCES:.c=.o)
 

@@ -3,9 +3,9 @@
 
 #include "/home/pirug/Desktop/identity-cbindings/header-binding/identity.h"
 
-struct identity {
+typedef struct identity {
     Did *did;
     Vc *vc;
-};
+} Identity ;
 
 #endif
