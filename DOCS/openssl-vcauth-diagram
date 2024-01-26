@@ -1,0 +1,100 @@
+@startuml
+participant GENPKEY as app
+participant LIBCRYPTO as lcrypto
+participant SSI_PROVIDER as prov
+participant IDENTITY_CBINDINGS as id
+
+group PROVIDER LOAD
+app -> lcrypto: OSSL_PROVIDER_load()
+activate lcrypto
+
+lcrypto -> prov: OSSL_PROVIDER_init()
+activate prov
+prov -> id: prov_init_wallet()
+activate id
+id -> id: setup
+id -> prov: return *wallet
+deactivate id
+prov -> lcrypto: return *provctx
+note left: provctx is now stored in libctx which \ncan be accessed during the application
+deactivate prov 
+lcrypto -> app: return
+deactivate lcrypto
+end
+
+note over lcrypto, prov: given the algorithm name (VC) we save into the EVP_PKEY_CTX the provider that contains this implemenation
+group EVP_PKEY_CTX CREATE
+app -> lcrypto: EVP_PKEY_CTX_new_from_name("VC")
+activate lcrypto
+lcrypto -> lcrypto: EVP_KEYMGMT_fetch()
+lcrypto -> prov: ssi_query()
+activate prov
+prov -> lcrypto: return *vc_kmgmt
+deactivate prov
+lcrypto -> app: return *evp_pkey_ctx
+deactivate lcrypto
+note left: No we a have an EVP_PKEY_CTX that \ncontains the implementation of the \nVC algorithm
+end
+
+note over lcrypto, prov: We generate the VC_GEN_CTX in which we will store the Wallet that will be needed to generate a DID and a VC
+group VC_GEN_CTX CREATE
+app -> lcrypto: EVP_PKEY_gen_init(*evp_pkey_ctx)
+activate lcrypto
+group KMGMT_OP
+lcrypto -> prov: gen_init(evp_pkey_ctx->vc_kmgmt)
+activate prov
+prov -> prov: vc_gen_ctx = malloc()
+prov -> prov: w = prov_ctx_get_wallet(vc_kmgmt->provctx)
+note right: extracts the wallet and saves it in vc_gen_ctx
+prov -> prov: vc_gen_ctx->w = w
+prov -> prov: return *vc_genctx
+deactivate prov
+prov -> lcrypto: return
+end
+lcrypto -> app: return
+deactivate lcrypto
+note left: now the evp_pkey_ctx holds the *vc_genctx \nthat contains a handle to the \nwallet to generate \na DID and VC
+end
+
+note over lcrypto, prov: We can now generate a DID (private key) and a VC (public key) 
+group EVP_PKEY *VC CREATE
+app -> lcrypto: EVP_PKEY_keygen(*evp_pkey_ctx)
+group KMGMT_OP
+lcrypto -> prov: vc_gen(evp_pkey_ctx->vc_kmgmt->vc_genctx)
+prov -> prov: i = malloc(Identity)
+prov -> id: did_create(vc_genctx->w)
+id -> prov: return *did
+prov -> prov: i->did = did
+prov -> id: vc_create(vc_genctx->w)
+id -> prov: return *vc
+prov -> prov: i->vc = vc
+prov -> lcrypto: return *i;
+end
+lcrypto -> app: return EVP_PKEY *vc
+note left: Now I generated a keypair \n(DID *privatekey and VC* publickey) \nthat I have stored in EVP_PKEY *vc
+end
+
+note over lcrypto, prov: We now encode our VC and DID Document (+ fragment) in PEM format and write them on two separate files
+group PEM ENCODE of DID and VC
+/'Output privatekey'/
+app->lcrypto : PEM_write_bio_PrivateKey(*vc)
+group ENCODE_OP
+lcrypto -> prov: vc_to_PrivateKeyInfo_pem_encode(*vc->kmgmt->keydata)
+prov -> prov : PEM_write_BIO()
+note right: Writes DID Document on file
+prov -> lcrypto:
+end
+lcrypto -> app: 
+
+/'Output publickey'/
+app->lcrypto : PEM_write_bio_PUBKEY(*vc)
+group ENCODE_OP
+lcrypto -> prov: vc_to_PublicKeyInfo_pem_encode(*vc->kmgmt->keydata)
+prov -> prov : PEM_write_BIO()
+note right: Writes VC on file
+prov -> lcrypto:
+end
+lcrypto -> app:
+end
+
+@enduml

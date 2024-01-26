@@ -1,0 +1,32 @@
+@startuml
+class Wallet {
+    client: Client
+    stronghold_storage: StrongholdStorage
+    address: Address
+    network: NetworkName
+    storage: Storage<StrongholdStorage, StrongholdStorage>
+
+    Wallet *setup(stronghold_path, password)
+}
+
+class Did {
+    did_document: IotaDocument
+    fragment: String
+
+    Did *did_create(Wallet *wallet)
+    Did *did_resolve(Wallet *wallet, char *did)
+    const char *get_did(Did *did)
+    Did *set_did(char *document, char *fragment)
+    char *did_sign(Wallet *wallet, Did *did, uint8_t *message, uintptr_t message_len)
+    rvalue_t did_verify(Did *did, char *jws)
+}
+
+class Vc {
+    vc: Jwt
+
+    Vc *vc_create(Wallet *wallet, Did *did, char *name)
+    Did *vc_verify(Wallet *wallet, char *peer_vc)
+    char *get_vc(Vc *vc)
+    Vc *set_vc(const char *vc_jwt)
+}
+@enduml
