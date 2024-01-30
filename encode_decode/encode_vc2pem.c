@@ -36,7 +36,6 @@ struct vc2pem_ctx_st {
 
 static void *vc2pem_newctx(void *provctx)
 {   
-    printf("VC ctx new\n");
     struct vc2pem_ctx_st *ctx = OPENSSL_zalloc(sizeof(*ctx));
 
     if (ctx != NULL) {
@@ -49,7 +48,6 @@ static void *vc2pem_newctx(void *provctx)
 static void vc2pem_freectx(void *vctx)
 {
     struct vc2pem_ctx_st *ctx = vctx;
-    printf("VC ctx free\n");
 
     //TODO
 
@@ -61,7 +59,6 @@ static int vc_to_PrivateKeyInfo_pem_encode(void *ctx, OSSL_CORE_BIO *cout, const
     struct vc2pem_ctx_st *vcctx = ctx;
     const struct identity *i = key;
     const char *did_document = get_did(i->did);
-    printf("I am:\n%s\n", did_document);
 
     BIO *out = ossl_bio_new_from_core_bio(vcctx->provctx, cout);
 
@@ -74,12 +71,11 @@ static int vc_to_SubjectPublicKeyInfo_pem_encode(void *ctx, OSSL_CORE_BIO *cout,
     struct vc2pem_ctx_st *vcctx = ctx;
     const struct identity *i = key;
     const char *vc = get_vc(i->vc);
-    printf("I am:\n%s\n", vc);
 
     BIO *out = ossl_bio_new_from_core_bio(vcctx->provctx, cout);
 
     PEM_write_bio(out, "PUBLIC KEY", NULL, (const unsigned char *)vc, strlen(vc));
-    /* Non so se va fatto perchè la memoria allocata appartiene a rust */
+    /* Don't know if should be done because memory was allocated in rust */
     //OPENSSL_free(vc);
     BIO_free(out);
     return 1;
@@ -90,12 +86,11 @@ static int vc_to_SubjectPublicKeyInfo_der_encode(void *ctx, OSSL_CORE_BIO *cout,
     struct vc2pem_ctx_st *vcctx = ctx;
     const struct identity *i = key;
     const char *vc = get_vc(i->vc);
-    printf("I am:\n%s\n", vc);
 
     BIO *out = ossl_bio_new_from_core_bio(vcctx->provctx, cout);
 
     BIO_write(out, (const unsigned char *)vc, strlen(vc));
-    /* Non so se va fatto perchè la memoria allocata appartiene a rust */
+    /* Don't know if should be done because memory was allocated in rust */
     //OPENSSL_free(vc);
     BIO_free(out);
     return 1;

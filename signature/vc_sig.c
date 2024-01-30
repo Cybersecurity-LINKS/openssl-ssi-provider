@@ -20,7 +20,6 @@
 # include <openssl/crypto.h>
 # include "../common/ssi.h"
 # include "../common/include/prov/provider_ctx.h"
-//#include "../cJSON.h"
 #include <string.h>
 
 #define ED25519_SIGSIZE 495 + 1
@@ -96,9 +95,10 @@ int vc_digest_sign(void *ctx,
     cJSON_AddStringToObject(payload, "tbs", tbs);
     char *json_payload = cJSON_Print(payload); */
 
-    printf("tbs: %s\n", (const char *)tbs);
+    //printf("tbs: %s\n", (const char *)tbs);
+    //fflush(stdout);
     strcpy(sigret, did_sign(vcctx->w, vcctx->i->did, tbs, tbslen));
-    printf("signature from identity: %s\n", sigret);
+    //printf("signature from identity: %s\n", sigret);
     *siglen = 1000;
 
     return 1;
@@ -118,7 +118,7 @@ int vc_digest_verify_init(void *ctx, const char *mdname,
 
     vcctx->i = (Identity *)provkey;
     char *peer_vc = get_vc(vcctx->i->vc);
-    printf("peer vc: %s\n", peer_vc);
+    //printf("peer vc: %s\n", peer_vc);
     sscanf(peer_vc, "%*s %s", peer_vc);
 
     vcctx->i->did = vc_verify(vcctx->w, peer_vc);
@@ -126,8 +126,8 @@ int vc_digest_verify_init(void *ctx, const char *mdname,
         return 0;
     char *peer_did = get_did(vcctx->i->did);
     sscanf(peer_did, "%*s %*s %s", peer_did);
-    printf("peer_did %s\n", peer_did);
-    fflush(stdout);
+    //printf("peer_did %s\n", peer_did);
+    //fflush(stdout);
 
     return 1; 
 }
@@ -142,9 +142,10 @@ int vc_digest_verify(void *ctx, const unsigned char *sig,
     if(vcctx->i == NULL)
         return 0; */
 
-    printf("signature to be verified: %s\n", (const char *)sig);
-    fflush(stdout);
-    rvalue_t r = did_verify(vcctx->i->did, (const char *)sig);
+    //printf("signature to be verified: %s\n", (const char *)sig);
+    //fflush(stdout);
+    //printf("\n\n %ld\n", tbslen);
+    rvalue_t r = did_verify(vcctx->i->did, (const char *)sig, tbs, tbslen);
     if(!r.code)
         return 0;
 

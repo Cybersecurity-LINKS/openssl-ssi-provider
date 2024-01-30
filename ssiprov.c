@@ -23,8 +23,6 @@
 #include "names.h"
 #include "implementations.h"
 #include "common/include/prov/bio.h"
-//#include "common/include/prov/provider_ctx.h"
-//#include "/home/pirug/Desktop/identity-cbindings/header-binding/identity.h"
 
 /* Functions provided by the core */
 static OSSL_FUNC_core_gettable_params_fn *c_gettable_params = NULL;

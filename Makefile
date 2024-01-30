@@ -1,4 +1,4 @@
-OPENSLL_INSTALL_DIR=/home/pirug/openssl-ietf-ssi
+OPENSLL_INSTALL_DIR=/home/pirug/openssl
 IDENTITY_CBINDINGS=/home/pirug/Desktop/identity-cbindings
 OPENSSL_LIB=lib64
 

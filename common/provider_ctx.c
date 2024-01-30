@@ -75,7 +75,6 @@ Wallet *prov_init_wallet(void)
     if (w == NULL)
         return NULL;
 
-    printf("Done setting up the wallet \n");
     return w;
 }
 

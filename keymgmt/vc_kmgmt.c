@@ -62,12 +62,12 @@ static void *vc_load(const void *reference, size_t reference_sz)
         did_document = OPENSSL_zalloc(reference_sz);
         fragment = OPENSSL_zalloc(reference_sz);
         sscanf((const char *)reference, "%*s %s %s", fragment, did_document);
-        printf("%s %s\n", fragment, did_document);
+        //printf("%s %s\n", fragment, did_document);
         did = set_did(did_document, fragment);
     } else if(OPENSSL_strcasecmp(oid, VC_OID) == 0) {
         vc_jwt = OPENSSL_zalloc(reference_sz);
         sscanf((const char *)reference, "%*s %s", vc_jwt);
-        printf("VC is %s\n", vc_jwt);
+        //printf("VC is %s\n", vc_jwt);
         vc = set_vc((const char *)vc_jwt);
     } else 
         return NULL;
@@ -83,11 +83,6 @@ static void *vc_load(const void *reference, size_t reference_sz)
     OPENSSL_free(did_document);
     OPENSSL_free(vc_jwt);
 
-    /* did_document = get_did(did);
-    printf("This is a get of DID: %s \n", did_document);
-    vc_jwt = get_vc(vc);
-    printf("This is a get of VC: %s \n", vc);
- */
     return i;
 }
 
@@ -116,12 +111,12 @@ static void *vc_gen(void *genctx, OSSL_CALLBACK *osslcb, void *cbarg)
 
     Did *did = did_create(gctx->w);
     const char *did_document = get_did(did);
-    printf("\nDID Document: %s\n", did_document);
+    //printf("\nDID Document: %s\n", did_document);
     i->did = did;
 
     Vc *vc = vc_create(gctx->w, did, "www.server.com");
     const char* vc_jwt = get_vc(vc);
-    printf("\nVC as JWT:\n %s", vc_jwt);
+    //printf("\nVC as JWT:\n %s", vc_jwt);
     i->vc = vc;
 
     return i;

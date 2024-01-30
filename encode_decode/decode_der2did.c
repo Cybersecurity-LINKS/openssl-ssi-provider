@@ -47,7 +47,7 @@ static int read_did(PROV_CTX *provctx, OSSL_CORE_BIO *cin,  char **did_doc,
     ok = BIO_read_ex(in, data, 2000, &length);
     if (ok) {
         *did_doc = data;
-        printf("%s\n", *did_doc);
+        //printf("%s\n", *did_doc);
         *did_doc_len = length;
         /* OPENSSL_free(mem); */
     }

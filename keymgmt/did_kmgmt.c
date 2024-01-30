@@ -20,7 +20,6 @@
 #include <openssl/crypto.h>
 #include <string.h>
 #include "../common/include/prov/provider_ctx.h"
-//#include "/home/pirug/Desktop/identity-cbindings/header-binding/identity.h"
 
 static OSSL_FUNC_keymgmt_new_fn did_newdata;
 static OSSL_FUNC_keymgmt_gen_init_fn did_gen_init;
@@ -46,7 +45,6 @@ static void *did_load(const void *reference, size_t reference_sz)
 	Did *did = NULL;
     char *fragment = OPENSSL_zalloc(reference_sz);
     char *did_document = OPENSSL_zalloc(reference_sz);
-    printf("%s\n", (const char*)reference);
 
     if(sscanf((const char*)reference, "%[^:]:%s", fragment, did_document) == EOF)
     	return NULL;

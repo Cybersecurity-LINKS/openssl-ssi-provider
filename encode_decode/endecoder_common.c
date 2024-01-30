@@ -31,7 +31,7 @@ int read_der(PROV_CTX *provctx, OSSL_CORE_BIO *cin,  char **data,
     if (ok) {
         d[l] = '\0';
         *data = d;
-        printf("%s\n", *data);
+        //printf("%s\n", *data);
         *len = l;
     }
     BIO_free(in);

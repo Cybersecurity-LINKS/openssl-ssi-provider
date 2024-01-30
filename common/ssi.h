@@ -18,7 +18,7 @@
 #ifndef SSI_H
 # define SSI_H
 
-#include "/home/pirug/Desktop/identity-cbindings/header-binding/identity.h"
+#include "include/prov/identity.h"
 
 typedef struct identity {
     Did *did;
