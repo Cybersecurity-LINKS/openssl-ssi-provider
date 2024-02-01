@@ -20,7 +20,6 @@
 # include <openssl/crypto.h>
 # include <openssl/bio.h>
 # include <openssl/pem.h>
-//#include "../common/include/prov/provider_ctx.h"
 # include "../common/include/prov/bio.h"
 # include "../common/ssi.h"
 

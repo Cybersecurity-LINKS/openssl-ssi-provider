@@ -85,16 +85,6 @@ int vc_digest_sign(void *ctx,
         return 1;
     }
 
-    // credential subject
-    /* cJSON *payload = cJSON_CreateObject();
-    if (payload == NULL)
-    {
-        return 0;
-    }
-
-    cJSON_AddStringToObject(payload, "tbs", tbs);
-    char *json_payload = cJSON_Print(payload); */
-
     //printf("tbs: %s\n", (const char *)tbs);
     //fflush(stdout);
     strcpy(sigret, did_sign(vcctx->w, vcctx->i->did, tbs, tbslen));

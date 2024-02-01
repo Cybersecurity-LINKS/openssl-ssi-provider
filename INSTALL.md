@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-### openssl (vcauthtls)
+### OpenSSL
 
 Download and install locally our modified version of OpenSSL that supports VC certificate type which is a fork of the original OpenSSL repo
 
