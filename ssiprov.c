@@ -20,9 +20,12 @@
 #include <openssl/core_names.h>
 #include <openssl/params.h>
 #include <openssl/bio.h>
+#include <openssl/prov_ssl.h>
 #include "names.h"
 #include "implementations.h"
 #include "common/include/prov/bio.h"
+
+# define OSSL_NELEM(x)    (sizeof(x)/sizeof((x)[0]))
 
 /* Functions provided by the core */
 static OSSL_FUNC_core_gettable_params_fn *c_gettable_params = NULL;
@@ -30,7 +33,6 @@ static OSSL_FUNC_core_get_params_fn *c_get_params = NULL;
 
 static const OSSL_ALGORITHM ssi_keymgmt[] = {
     { PROV_NAMES_VC , "provider=ssi", ossl_vc_keymgmt_functions },
-    { PROV_NAMES_DID, "provider=ssi", ossl_did_keymgmt_functions },
     { NULL, NULL, NULL }
 };
 
@@ -38,14 +40,13 @@ static const OSSL_ALGORITHM ssi_encoder[] = {
     { PROV_NAMES_VC , "provider=ssi,output=pem,structure=SubjectPublicKeyInfo", ossl_vc_to_SubjectPublicKeyInfo_pem_encoder_functions },
     { PROV_NAMES_VC , "provider=ssi,output=pem,structure=PrivateKeyInfo", ossl_vc_to_PrivateKeyInfo_pem_encoder_functions },
     { PROV_NAMES_VC , "provider=ssi,output=der,structure=SubjectPublicKeyInfo", ossl_vc_to_SubjectPublicKeyInfo_der_encoder_functions },
-    /* { PROV_NAMES_DID, "provider=ssi,output=pem,structure=PrivateKeyInfo", ossl_did_to_PrivateKeyInfo_pem_encoder_functions }, */
+    { PROV_NAMES_VC , "provider=ssi,output=text,structure=SubjectPublicKeyInfo", ossl_vc_to_SubjectPublicKeyInfo_der_encoder_functions },
     { NULL, NULL, NULL }
 };
 
 static const OSSL_ALGORITHM ssi_decoder[] = {
     { PROV_NAMES_VC, "provider=ssi,input=der,structure=SubjectPublicKeyInfo", ossl_SubjectPublicKeyInfo_der_to_vc_decoder_functions },
     { PROV_NAMES_VC, "provider=ssi,input=der,structure=PrivateKeyInfo", ossl_PrivateKeyInfo_der_to_vc_decoder_functions },
-    /* { PROV_NAMES_DID, "provider=ssi,input=der,structure=PrivateKeyInfo", ossl_PrivateKeyInfo_der_to_did_decoder_functions }, */
     { NULL, NULL, NULL }
 };
 
@@ -109,11 +110,50 @@ static void ssi_teardown(void *provctx)
     //TODO (have a look at dflt-prov)
 }
 
+typedef struct tls_sigalgs_constants_st {
+    unsigned int code_point;
+    unsigned int secbits;
+    int mintls;              /* Minimum TLS version, -1 unsupported */
+    int maxtls;              /* Maximum TLS version (or 0 for undefined) */
+} TLS_SIGALGS_CONSTANTS;
+
+static const TLS_SIGALGS_CONSTANTS sigalgs_list[] = {
+    {0xFE00, 113, TLS1_3_VERSION, TLS1_3_VERSION},
+};
+
+static const OSSL_PARAM param_sigalgs_list[][7] = {
+    {
+        OSSL_PARAM_utf8_string(OSSL_CAPABILITY_TLS_SIGALG_NAME, "VC", sizeof("VC")),
+        OSSL_PARAM_utf8_string(OSSL_CAPABILITY_TLS_SIGALG_IANA_NAME, "VC", sizeof("VC")),
+        OSSL_PARAM_uint(OSSL_CAPABILITY_TLS_SIGALG_CODE_POINT, (unsigned int *)&sigalgs_list[0].code_point), /* Assigned IANA value for private use */
+        OSSL_PARAM_uint(OSSL_CAPABILITY_TLS_SIGALG_SECURITY_BITS, (unsigned int *)&sigalgs_list[0].secbits),
+        OSSL_PARAM_int(OSSL_CAPABILITY_TLS_SIGALG_MIN_TLS, (unsigned int *)&sigalgs_list[0].mintls),
+        OSSL_PARAM_int(OSSL_CAPABILITY_TLS_SIGALG_MAX_TLS, (unsigned int *)&sigalgs_list[0].maxtls),
+        OSSL_PARAM_END
+    }
+};
+
+int ssi_get_capabilities(void *provctx, const char *capability,
+                               OSSL_CALLBACK *cb, void *arg) {
+    size_t i;
+
+    if (OPENSSL_strcasecmp(capability, "TLS-SIGALG") == 0) {
+        for(i = 0; i < OSSL_NELEM(param_sigalgs_list); i++){
+            if(!cb(param_sigalgs_list[i], arg))
+                return 0;
+        }
+    }            
+
+    return 1;
+}
+
 static const OSSL_DISPATCH ssi_dispatch_table[] = {
     { OSSL_FUNC_PROVIDER_TEARDOWN, (void (*)(void))ssi_teardown },
     { OSSL_FUNC_PROVIDER_GETTABLE_PARAMS, (void (*)(void))ssi_gettable_params },
     { OSSL_FUNC_PROVIDER_GET_PARAMS, (void (*)(void))ssi_get_params },
     { OSSL_FUNC_PROVIDER_QUERY_OPERATION, (void (*)(void))ssi_query },
+    { OSSL_FUNC_PROVIDER_GET_CAPABILITIES,
+      (void (*)(void))ssi_get_capabilities },
     OSSL_DISPATCH_END
 };
 

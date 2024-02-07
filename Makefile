@@ -13,8 +13,8 @@ CFLAGS =\
 LDFLAGS = -shared -lidentity_openssl 
 
 TARGET = libssiprovider.so
-SOURCES = keymgmt/vc_kmgmt.c keymgmt/did_kmgmt.c\
-	encode_decode/endecoder_local.h encode_decode/endecoder_common.c encode_decode/decode_der2vc.c encode_decode/decode_der2did.c encode_decode/encode_vc2pem.c encode_decode/encode_did2pem.c\
+SOURCES = keymgmt/vc_kmgmt.c\
+	encode_decode/endecoder_local.h encode_decode/endecoder_common.c encode_decode/decode_der2vc.c encode_decode/encode_vc2pem.c\
 	signature/vc_sig.c\
 	common/ssi.h common/bio_prov.c common/provider_ctx.c common/include/prov/bio.h common/include/prov/provider_ctx.h\
 	ssiprov.c names.h
@@ -26,7 +26,11 @@ $(TARGET): $(OBJECTS)
 	$(CC)  $(CFLAGS) -o $(TARGET) $(OBJECTS) $(LDFLAGS)
 
 clean:
-	rm -f ssiprov.o keymgmt/vc_kmgmt.o keymgmt/did_kmgmt.o encode_decode/encode_vc2pem.o encode_decode/encode_did2pem.o common/bio_prov.o common/provider_ctx.o libssiprovider.so
+	rm -f ssiprov.o keymgmt/vc_kmgmt.o\
+	encode_decode/endecoder_common.o encode_decode/decode_der2vc.o encode_decode/encode_vc2pem.o\
+	signature/vc_sig.o\
+	common/bio_prov.o common/provider_ctx.o\
+	libssiprovider.so
 
 install:
 	
