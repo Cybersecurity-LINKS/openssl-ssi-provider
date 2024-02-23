@@ -48,8 +48,6 @@ static void vc2pem_freectx(void *vctx)
 {
     struct vc2pem_ctx_st *ctx = vctx;
 
-    //TODO
-
     OPENSSL_free(ctx);
 }
 
@@ -62,6 +60,7 @@ static int vc_to_PrivateKeyInfo_pem_encode(void *ctx, OSSL_CORE_BIO *cout, const
     BIO *out = ossl_bio_new_from_core_bio(vcctx->provctx, cout);
 
     PEM_write_bio(out, "PRIVATE KEY", NULL, (const unsigned char *)did_document, strlen(did_document));
+    free_string(did_document);
     return 1;                                                           
 }
 
@@ -74,9 +73,8 @@ static int vc_to_SubjectPublicKeyInfo_pem_encode(void *ctx, OSSL_CORE_BIO *cout,
     BIO *out = ossl_bio_new_from_core_bio(vcctx->provctx, cout);
 
     PEM_write_bio(out, "PUBLIC KEY", NULL, (const unsigned char *)vc, strlen(vc));
-    /* Don't know if should be done because memory was allocated in rust */
-    //OPENSSL_free(vc);
     BIO_free(out);
+    free_string(vc);
     return 1;
 }
 
@@ -89,9 +87,8 @@ static int vc_to_SubjectPublicKeyInfo_der_encode(void *ctx, OSSL_CORE_BIO *cout,
     BIO *out = ossl_bio_new_from_core_bio(vcctx->provctx, cout);
 
     BIO_write(out, (const unsigned char *)vc, strlen(vc));
-    /* Don't know if should be done because memory was allocated in rust */
-    //OPENSSL_free(vc);
     BIO_free(out);
+    free_string(vc);
     return 1;
 }
 

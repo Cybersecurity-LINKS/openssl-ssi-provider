@@ -70,7 +70,7 @@ BIO_METHOD *ossl_prov_ctx_get0_core_bio_method(PROV_CTX *ctx)
 Wallet *prov_init_wallet(void)
 {
     Wallet *w = NULL;
-    w = setup("./server.stronghold", "server");
+    w = setup("./test-stuff/server.stronghold", "server");
 
     if (w == NULL)
         return NULL;

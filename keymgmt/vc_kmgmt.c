@@ -110,13 +110,9 @@ static void *vc_gen(void *genctx, OSSL_CALLBACK *osslcb, void *cbarg)
         return NULL;
 
     Did *did = did_create(gctx->w);
-    const char *did_document = get_did(did);
-    //printf("\nDID Document: %s\n", did_document);
     i->did = did;
 
     Vc *vc = vc_create(gctx->w, did, "www.server.com");
-    const char* vc_jwt = get_vc(vc);
-    //printf("\nVC as JWT:\n %s", vc_jwt);
     i->vc = vc;
 
     return i;
@@ -128,12 +124,13 @@ static void vc_gen_cleanup(void *genctx)
 
     if(gctx == NULL)
         return;
+    // TODO free gctx->w
     OPENSSL_free(gctx);
 }
 
 static void vc_freedata(void *keydata)
 {
-    //TODO liberare identity i
+    //TODO free Identity and its content
     return;
 }
 
@@ -145,12 +142,6 @@ static int vc_has(const void *keydata, int selection)
 
 static int vc_validate(const void *keydata, int selection, int checktype)
 {
-    /* struct identity *i = keydata;
-    Wallet *w = NULL;
-
-    const char* vc_jwt = get_vc(i->vc);
-    i->did = vc_verify(w, vc_jwt); */
-
     return 1;
 }
 

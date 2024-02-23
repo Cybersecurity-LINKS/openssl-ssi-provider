@@ -22,7 +22,7 @@
 # include "../common/include/prov/provider_ctx.h"
 #include <string.h>
 
-#define ED25519_SIGSIZE 495 + 1
+# define VC_SIGSIZE       2000
 
 static OSSL_FUNC_signature_newctx_fn vc_newctx;
 static OSSL_FUNC_signature_freectx_fn vc_freectx;
@@ -81,15 +81,13 @@ int vc_digest_sign(void *ctx,
     
     VC_SIGN_CTX *vcctx = (VC_SIGN_CTX *)ctx;
     if(sigret == NULL){
-        *siglen = 1000;
+        *siglen = 2000;
         return 1;
     }
 
-    //printf("tbs: %s\n", (const char *)tbs);
-    //fflush(stdout);
     strcpy(sigret, did_sign(vcctx->w, vcctx->i->did, tbs, tbslen));
     //printf("signature from identity: %s\n", sigret);
-    *siglen = 1000;
+    //*siglen = 1000;
 
     return 1;
 }
@@ -100,26 +98,24 @@ int vc_digest_verify_init(void *ctx, const char *mdname,
     
     VC_SIGN_CTX *vcctx = (VC_SIGN_CTX *)ctx;
 
-    /* vcctx->i = OPENSSL_zalloc(sizeof(Identity));
-    if(vcctx->i == NULL)
-        return 0; */
-
-    /* Identity *i = (Identity*)provkey; */
-
     vcctx->i = (Identity *)provkey;
     char *peer_vc = get_vc(vcctx->i->vc);
-    //printf("peer vc: %s\n", peer_vc);
     sscanf(peer_vc, "%*s %s", peer_vc);
 
     vcctx->i->did = vc_verify(vcctx->w, peer_vc);
     if (vcctx->i->did == NULL)
-        return 0;
+        goto err;
     char *peer_did = get_did(vcctx->i->did);
-    sscanf(peer_did, "%*s %*s %s", peer_did);
-    //printf("peer_did %s\n", peer_did);
-    //fflush(stdout);
+    //sscanf(peer_did, "%*s %*s %s", peer_did);
 
-    return 1; 
+    free_string(peer_vc);
+    free_string(peer_did);
+    return 1;
+
+err:
+    free_string(peer_vc);
+    free_string(peer_did);
+    return 0;
 }
 
 int vc_digest_verify(void *ctx, const unsigned char *sig,
