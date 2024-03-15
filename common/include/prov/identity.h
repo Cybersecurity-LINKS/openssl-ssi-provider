@@ -1,5 +1,10 @@
 #ifndef IDENTITY_H
-#define IDENTITY_H
+# define IDENTITY_H
+
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 
 #include <stdarg.h>
 #include <stdbool.h>
@@ -24,18 +29,20 @@ struct Did *did_resolve(struct Wallet *wallet, const char *did);
 
 const char *get_did(const struct Did *did);
 
-/**
- * # Safety
- * The ptr should be a valid pointer to the string allocated by rust
- */
+void free_string(const char *ptr);
+
 struct Did *set_did(const char *document, const char *fragment);
 
-char *did_sign(const struct Wallet *wallet,
-               const struct Did *did,
-               uint8_t *message,
-               uintptr_t message_len);
+unsigned char *did_sign(const struct Wallet *wallet,
+                        const struct Did *did,
+                        uint8_t *message,
+                        uintptr_t message_len);
 
-struct rvalue_t did_verify(const struct Did *did, const char *jws, uint8_t *tbv, uintptr_t tbv_len);
+struct rvalue_t did_verify(const struct Did *did,
+                           uint8_t *signing_input,
+                           uintptr_t signing_input_len,
+                           uint8_t *sig,
+                           uintptr_t sig_len);
 
 struct Vc *vc_create(struct Wallet *wallet, const struct Did *did, const char *name);
 

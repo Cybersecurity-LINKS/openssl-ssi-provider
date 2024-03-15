@@ -22,7 +22,7 @@
 # include "../common/include/prov/provider_ctx.h"
 #include <string.h>
 
-# define VC_SIGSIZE       2000
+# define VC_SIGSIZE       187
 
 static OSSL_FUNC_signature_newctx_fn vc_newctx;
 static OSSL_FUNC_signature_freectx_fn vc_freectx;
@@ -81,13 +81,12 @@ int vc_digest_sign(void *ctx,
     
     VC_SIGN_CTX *vcctx = (VC_SIGN_CTX *)ctx;
     if(sigret == NULL){
-        *siglen = 2000;
+        *siglen = VC_SIGSIZE;
         return 1;
     }
 
-    strcpy(sigret, did_sign(vcctx->w, vcctx->i->did, tbs, tbslen));
-    //printf("signature from identity: %s\n", sigret);
-    //*siglen = 1000;
+    OPENSSL_free(sigret);
+    sigret = did_sign(vcctx->w, vcctx->i->did, tbs, tbslen);
 
     return 1;
 }
@@ -124,14 +123,7 @@ int vc_digest_verify(void *ctx, const unsigned char *sig,
     
     VC_SIGN_CTX *vcctx = (VC_SIGN_CTX *)ctx;
 
-    /* vcctx->i = OPENSSL_zalloc(sizeof(Identity));
-    if(vcctx->i == NULL)
-        return 0; */
-
-    //printf("signature to be verified: %s\n", (const char *)sig);
-    //fflush(stdout);
-    //printf("\n\n %ld\n", tbslen);
-    rvalue_t r = did_verify(vcctx->i->did, (const char *)sig, tbs, tbslen);
+    rvalue_t r = did_verify(vcctx->i->did, tbs, tbslen, sig, siglen);
     if(!r.code)
         return 0;
 
