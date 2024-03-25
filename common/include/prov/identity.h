@@ -6,11 +6,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include <stdarg.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdlib.h>
-
 typedef struct Did Did;
 
 typedef struct Vc Vc;
@@ -31,7 +26,7 @@ const char *get_did(const struct Did *did);
 
 void free_string(const char *ptr);
 
-struct Did *set_did(const char *document, const char *fragment);
+struct Did *set_did(const char *document, const char *fragment, const char *privkey);
 
 unsigned char *did_sign(const struct Wallet *wallet,
                         const struct Did *did,

@@ -50,6 +50,7 @@ static void *vc_load(const void *reference, size_t reference_sz)
     char oid[20];
     char *did_document = NULL;
     char *fragment = NULL;
+    char *privkey = NULL;
     char *vc_jwt = NULL;
 
     Vc *vc = NULL;
@@ -60,10 +61,11 @@ static void *vc_load(const void *reference, size_t reference_sz)
 
     if(OPENSSL_strcasecmp(oid, DID_OID) == 0) {
         did_document = OPENSSL_zalloc(reference_sz);
+        privkey = OPENSSL_zalloc(reference_sz);
         fragment = OPENSSL_zalloc(reference_sz);
-        sscanf((const char *)reference, "%*s %s %s", fragment, did_document);
+        sscanf((const char *)reference, "%*s %s %s %s", fragment, privkey, did_document);
         //printf("%s %s\n", fragment, did_document);
-        did = set_did(did_document, fragment);
+        did = set_did(did_document, fragment, privkey);
     } else if(OPENSSL_strcasecmp(oid, VC_OID) == 0) {
         vc_jwt = OPENSSL_zalloc(reference_sz);
         sscanf((const char *)reference, "%*s %s", vc_jwt);
